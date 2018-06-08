@@ -48,8 +48,7 @@ impl fmt::Display for BinaryImage {
     }
 }
 
-fn check (img: &BinaryImage, x: usize, y: usize) -> bool {
-    let kernel = BinaryImage::filled(3, 3);
+fn check_neighbours (img: &BinaryImage, kernel: &BinaryImage, x: usize, y: usize) -> bool {
     let anchor_x = kernel.width / 2;
     let anchor_y = kernel.height / 2;
 
@@ -66,19 +65,20 @@ fn check (img: &BinaryImage, x: usize, y: usize) -> bool {
     false
 }
 
-fn dilate (input: BinaryImage) -> BinaryImage {
+fn dilate (input: BinaryImage, kernel: BinaryImage) -> BinaryImage {
     let mut output = BinaryImage::new(input.width, input.height);
     for x in 1..input.width {
         for y in 1..output.height {
-            output.data[x + y * output.width] = check(&input, x, y);
+            output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y);
         }
     }
     output
 }
 
 fn main () {
+    let kernel = BinaryImage::filled(3, 3);
     let mut test = BinaryImage::new(10, 20);
     test.data[44] = true;
-    let output = dilate(test);
+    let output = dilate(test, kernel);
     println!("{}", output);
 }
