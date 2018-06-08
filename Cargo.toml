@@ -1,0 +1,6 @@
+[package]
+name = "image-morphology"
+version = "0.1.0"
+authors = ["Finn Pauls <derfinn@gmail.com>"]
+
+[dependencies]
