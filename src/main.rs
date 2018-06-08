@@ -1,4 +1,5 @@
 use std::fmt;
+use std::cmp::min;
 
 #[derive(Debug)]
 pub struct BinaryImage {
@@ -11,6 +12,14 @@ impl BinaryImage {
     fn new (width: usize, height: usize) -> Self {
         BinaryImage {
             data: vec![false; width * height],
+            width: width,
+            height: height
+        }
+    }
+
+    fn filled (width: usize, height: usize) -> Self {
+        BinaryImage {
+            data: vec![true; width * height],
             width: width,
             height: height
         }
@@ -39,16 +48,29 @@ impl fmt::Display for BinaryImage {
     }
 }
 
+fn check (img: &BinaryImage, x: usize, y: usize) -> bool {
+    let kernel = BinaryImage::filled(3, 3);
+    let anchor_x = kernel.width / 2;
+    let anchor_y = kernel.height / 2;
+
+    let offset_x = anchor_x - min(anchor_x, x);
+    let offset_y = anchor_y - min(anchor_y, y);
+
+    for dx in offset_x..(kernel.width - offset_x) {
+        for dy in offset_y..(kernel.height - offset_y) {
+            if img.get(x + dx - anchor_x, y + dy - anchor_y) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
 fn dilate (input: BinaryImage) -> BinaryImage {
     let mut output = BinaryImage::new(input.width, input.height);
     for x in 1..input.width {
         for y in 1..output.height {
-            let current = input.get(x, y);
-            let up = input.get(x, y - 1);
-            let down = input.get(x, y + 1);
-            let left = input.get(x - 1, y);
-            let right = input.get(x + 1, y);
-            output.data[x + y * output.width] = current || up || down || left || right;
+            output.data[x + y * output.width] = check(&input, x, y);
         }
     }
     output
