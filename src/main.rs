@@ -2,15 +2,15 @@ use std::fmt;
 use std::cmp::min;
 
 #[derive(Debug)]
-pub struct BinaryImage {
+pub struct Vec2d {
     pub width: usize,
     pub height: usize,
     pub data: Vec<bool>
 }
 
-impl BinaryImage {
+impl Vec2d {
     fn new (width: usize, height: usize) -> Self {
-        BinaryImage {
+        Vec2d {
             data: vec![false; width * height],
             width: width,
             height: height
@@ -18,7 +18,7 @@ impl BinaryImage {
     }
 
     fn filled (width: usize, height: usize) -> Self {
-        BinaryImage {
+        Vec2d {
             data: vec![true; width * height],
             width: width,
             height: height
@@ -36,7 +36,7 @@ impl BinaryImage {
     }
 }
 
-impl fmt::Display for BinaryImage {
+impl fmt::Display for Vec2d {
     fn fmt (&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in self.data.chunks(self.width) {
             for cell in row.iter() {
@@ -48,7 +48,7 @@ impl fmt::Display for BinaryImage {
     }
 }
 
-fn check_neighbours (img: &BinaryImage, kernel: &BinaryImage, x: usize, y: usize) -> bool {
+fn check_neighbours (img: &Vec2d, kernel: &Vec2d, x: usize, y: usize, flip: bool) -> bool {
     let anchor_x = kernel.width / 2;
     let anchor_y = kernel.height / 2;
 
@@ -57,28 +57,40 @@ fn check_neighbours (img: &BinaryImage, kernel: &BinaryImage, x: usize, y: usize
 
     for dx in offset_x..(kernel.width - offset_x) {
         for dy in offset_y..(kernel.height - offset_y) {
-            if img.get(x + dx - anchor_x, y + dy - anchor_y) {
-                return true;
+            if flip == img.get(x + dx - anchor_x, y + dy - anchor_y) {
+                return flip;
             }
         }
     }
-    false
+    !flip
 }
 
-fn dilate (input: BinaryImage, kernel: BinaryImage) -> BinaryImage {
-    let mut output = BinaryImage::new(input.width, input.height);
+fn dilate (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
+    let mut output = Vec2d::new(input.width, input.height);
     for x in 1..input.width {
         for y in 1..output.height {
-            output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y);
+            output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y, true);
+        }
+    }
+    output
+}
+
+fn erode (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
+    let mut output = Vec2d::new(input.width, input.height);
+    for x in 1..input.width {
+        for y in 1..output.height {
+            output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y, false);
         }
     }
     output
 }
 
 fn main () {
-    let kernel = BinaryImage::filled(3, 3);
-    let mut test = BinaryImage::new(10, 20);
+    let kernel = Vec2d::filled(5, 5);
+    let mut test = Vec2d::new(10, 20);
     test.data[44] = true;
-    let output = dilate(test, kernel);
+    let output = dilate(&test, &kernel);
+    let start = erode(&output, &kernel);
     println!("{}", output);
+    println!("{}", start);
 }
