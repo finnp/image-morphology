@@ -1,14 +1,19 @@
 use std::fmt;
 use std::cmp::min;
 
+/// Represents a [binary image](https://en.wikipedia.org/wiki/Binary_image)
 #[derive(Debug)]
 pub struct Vec2d {
+    /// width of the vector
     pub width: usize,
+    /// height of the vector
     pub height: usize,
+    /// 2d vector represented in a 1d vector
     pub data: Vec<bool>
 }
 
 impl Vec2d {
+    /// create a 2d vector filled with `false`
     pub fn empty (width: usize, height: usize) -> Self {
         Vec2d {
             data: vec![false; width * height],
@@ -17,6 +22,7 @@ impl Vec2d {
         }
     }
 
+    /// create a 2d vector filled with `true`
     pub fn filled (width: usize, height: usize) -> Self {
         Vec2d {
             data: vec![true; width * height],
@@ -25,6 +31,7 @@ impl Vec2d {
         }
     }
 
+    /// get the pixel on a `x` and `y` position
     pub fn get (&self, x: usize, y: usize ) -> bool {
         if x >= self.width {
             return false
@@ -65,6 +72,8 @@ fn check_neighbours (img: &Vec2d, kernel: &Vec2d, x: usize, y: usize, flip: bool
     !flip
 }
 
+/// Performs [dilation](https://docs.opencv.org/2.4/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html#dilation)
+/// on a `Vec2d`
 pub fn dilate (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
     let mut output = Vec2d::empty(input.width, input.height);
     for x in 1..input.width {
@@ -75,6 +84,8 @@ pub fn dilate (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
     output
 }
 
+/// Performs an [erosion](https://docs.opencv.org/2.4/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html#erosion)
+/// on a `Vec2d`
 pub fn erode (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
     let mut output = Vec2d::empty(input.width, input.height);
     for x in 1..input.width {
