@@ -9,7 +9,7 @@ pub struct Vec2d {
 }
 
 impl Vec2d {
-    pub fn new (width: usize, height: usize) -> Self {
+    pub fn empty (width: usize, height: usize) -> Self {
         Vec2d {
             data: vec![false; width * height],
             width: width,
@@ -66,7 +66,7 @@ fn check_neighbours (img: &Vec2d, kernel: &Vec2d, x: usize, y: usize, flip: bool
 }
 
 pub fn dilate (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
-    let mut output = Vec2d::new(input.width, input.height);
+    let mut output = Vec2d::empty(input.width, input.height);
     for x in 1..input.width {
         for y in 1..output.height {
             output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y, true);
@@ -76,7 +76,7 @@ pub fn dilate (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
 }
 
 pub fn erode (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
-    let mut output = Vec2d::new(input.width, input.height);
+    let mut output = Vec2d::empty(input.width, input.height);
     for x in 1..input.width {
         for y in 1..output.height {
             output.data[x + y * output.width] = check_neighbours(&input, &kernel, x, y, false);
@@ -88,7 +88,7 @@ pub fn erode (input: &Vec2d, kernel: &Vec2d) -> Vec2d {
 #[test]
 fn it_works() {
     let kernel = Vec2d::filled(5, 5);
-    let mut input = Vec2d::new(10, 20);
+    let mut input = Vec2d::empty(10, 20);
     input.data[44] = true;
     let output = dilate(&input, &kernel);
     let reversed = erode(&output, &kernel);
